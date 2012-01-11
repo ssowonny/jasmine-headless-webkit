@@ -4,38 +4,29 @@ require 'execjs'
 module Jasmine::Headless
   class DustTemplate < Tilt::Template
     include Jasmine::Headless::FileChecker
-    
-    module Source
-      def self.path
-        @path ||= File.expand_path('../../../vendor/assets/javascripts/dust-full-for-compile.js', __FILE__)
+
+    self.default_mime_type = 'application/javascript'
+
+    def prepare; end
+
+    def evaluate(scope, locals, &block)
+      if bad_format?(file)
+        alert_bad_format(file)
+        return ''
       end
-
-      def self.contents
-        @contents ||= File.read(path)
-      end
-
-      def self.context
-        @context ||= ExecJS.compile(contents)
-      end
-
-    end
-
-    class DustTemplate < ::Tilt::Template
-
-      def self.default_mime_type
-        'application/javascript'
-      end
-
-      def prepare
-      end
-
-      def evaluate(scope, locals, &block)
-        template_root = Dust.config.template_root
-        template_name = file.split(template_root).last.split('.',2).first
-        Source.context.call("dust.compile", data, template_name)
+      begin
+        cache = Jasmine::Headless::DustCache.new(file)
+        source = cache.handle
+        if cache.cached?
+          %{<script type="text/javascript" src="#{cache.cache_file}"></script>
+            <script type="text/javascript">window.CSTF['#{File.split(cache.cache_file).last}'] = '#{file}';</script>}
+        else
+          %{<script type="text/javascript">#{source}</script>}
+        end
+      rescue StandardError => e
+        puts "[%s] Error in compiling file: %s" % [ 'coffeescript'.color(:red), file.color(:yellow) ]
+        raise e
       end
     end
-
   end
 end
-
