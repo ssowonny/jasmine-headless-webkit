@@ -66,6 +66,7 @@ module Jasmine::Headless
           register_engine '.js', Jasmine::Headless::JSTemplate
           register_engine '.css', Jasmine::Headless::CSSTemplate
           register_engine '.jst', Jasmine::Headless::JSTTemplate
+          register_engine '.dust', Jasmine::Headless::DustTemplate
         end
       end
 
