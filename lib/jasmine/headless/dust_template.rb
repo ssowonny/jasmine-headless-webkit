@@ -5,6 +5,15 @@ module Jasmine::Headless
   class DustTemplate < Tilt::Template
     include Jasmine::Headless::FileChecker
 
+    class << self
+      def template_root=(root)
+        @template_root = root
+      end
+      def template_root
+        @template_root || "app/assets/javascripts/templates/"
+      end
+    end
+
     self.default_mime_type = 'application/javascript'
 
     def prepare; end

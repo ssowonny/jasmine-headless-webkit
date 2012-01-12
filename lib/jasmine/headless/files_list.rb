@@ -225,6 +225,9 @@ module Jasmine::Headless
           add_files(@searches[type] = data.flatten, type, send(SEARCH_ROOTS[type]))
         end
       end
+
+      # config dust template
+      Jasmine::Headless::DustTemplate.template_root = @config['template_dir']
     end
 
     def add_files(patterns, type, dirs)
